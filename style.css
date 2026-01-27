@@ -323,7 +323,7 @@ li a {
 .gallery-name {
     font-size: 0.9rem;
     font-weight: 600;
-    max-width: 100%;
+    max-width: 18rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -336,6 +336,10 @@ li a {
     color: white;
     border: none;
     padding: 6px 12px;
+    margin-right: 10px;
+    margin-left: 10px;
+    max-width: 7rem;
+    width: 7rem;
     border-radius: 6px;
     font-size: 0.8rem;
     cursor: pointer;

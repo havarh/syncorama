@@ -31,7 +31,10 @@
         <div id="dashboard-screen" class="screen hidden">
             <header>
                 <div class="logo">Syncorama</div>
-                <button id="logout-btn" class="icon-btn">Logout</button>
+                <div style="display: flex; gap: 10px;">
+                    <button id="pause-btn" class="icon-btn">Pause</button>
+                    <button id="logout-btn" class="icon-btn">Logout</button>
+                </div>
             </header>
 
             <main>

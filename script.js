@@ -7,6 +7,7 @@ const app = {
         // No passkey input needed anymore, but maybe a button for "Login with Passkey"
         loginBox: document.querySelector('.login-box'),
         logoutBtn: document.getElementById('logout-btn'),
+        pauseBtn: document.getElementById('pause-btn'),
         clipboardContent: document.getElementById('clipboard-content'),
         copyBtn: document.getElementById('copy-btn'),
         pasteBtn: document.getElementById('paste-btn'),
@@ -19,7 +20,8 @@ const app = {
     },
 
     state: {
-        pollingInterval: null
+        pollingInterval: null,
+        isPaused: false
     },
 
     init() {
@@ -49,6 +51,7 @@ const app = {
         });
 
         this.els.logoutBtn.addEventListener('click', () => this.logout());
+        this.els.pauseBtn.addEventListener('click', () => this.togglePause()); // New Listener
         this.els.copyBtn.addEventListener('click', () => this.copyToDevice());
         this.els.pasteBtn.addEventListener('click', () => this.pushToServer());
 
@@ -350,6 +353,8 @@ const app = {
     // --- Existing App Logic ---
 
     async refreshData() {
+        if (this.state.isPaused) return; // Skip if paused
+
         const historyRes = await this.request('get_history');
         if (historyRes.success) this.updateClipboardUI(historyRes.data);
 
@@ -360,6 +365,13 @@ const app = {
     startPolling() {
         if (this.state.pollingInterval) clearInterval(this.state.pollingInterval);
         this.state.pollingInterval = setInterval(() => this.refreshData(), 5000);
+    },
+
+    togglePause() {
+        this.state.isPaused = !this.state.isPaused;
+        this.els.pauseBtn.innerText = this.state.isPaused ? 'Resume' : 'Pause';
+        this.els.pauseBtn.style.borderColor = this.state.isPaused ? 'var(--accent-1)' : '';
+        this.els.pauseBtn.style.color = this.state.isPaused ? 'var(--accent-1)' : '';
     },
 
     stopPolling() {
