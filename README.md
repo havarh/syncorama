@@ -3,7 +3,6 @@
 ## Requirements
 - Apache or Nginx
 - PHP 7.4+ with OpenSSL and JSON extensions
-- Composer
 - Write permissions on `uploads/`, `clipboard_history/`, and `data/`
 - **HTTPS is required for WebAuthn (Passkeys)**
 

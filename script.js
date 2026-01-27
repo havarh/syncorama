@@ -383,7 +383,10 @@ const app = {
         this.els.clipboardList.innerHTML = data.history.map((item, index) => `
             <li data-index="${index}" style="cursor: pointer;">
                 <div class="content-preview">${escapeHtml(item.content.substring(0, 50))}${item.content.length > 50 ? '...' : ''}</div>
-                <div class="meta">${new Date(item.time * 1000).toLocaleString()}</div>
+                <div class="meta-group">
+                    <span class="meta">${new Date(item.time * 1000).toLocaleString()}</span>
+                    <button class="hide-btn" onclick="app.hideItem('clipboard', '${item.filename}', event)">hide</button>
+                </div>
             </li>
         `).join('');
     },
@@ -494,7 +497,10 @@ const app = {
                 <img src="${file.url}" class="gallery-thumb" alt="${escapeHtml(file.name)}" onclick="window.open('${file.url}', '_blank')">
                 <div class="gallery-meta">
                     <div class="gallery-name" title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</div>
-                    <a href="${file.url}" download="${file.name}" class="gallery-download-btn">Download</a>
+                    <div style="display: flex; gap: 5px; margin-top: auto;">
+                        <a href="${file.url}" download="${file.name}" class="gallery-download-btn" style="flex: 1;">Download</a>
+                        <button class="hide-btn" onclick="app.hideItem('file', '${file.name}', event)">hide</button>
+                    </div>
                 </div>
             </li>
         `).join('');
@@ -513,9 +519,24 @@ const app = {
                 <div class="actions">
                     ${isPdf ? `<a href="${file.url}" target="_blank" class="secondary-btn" style="padding: 5px 10px; font-size: 0.8rem; margin-right: 5px;">Preview</a>` : ''}
                     <a href="${file.url}" download="${file.name}" class="secondary-btn" style="padding: 5px 10px; font-size: 0.8rem;">Download</a>
+                    <button class="hide-btn" onclick="app.hideItem('file', '${file.name}', event)">hide</button>
                 </div>
             </li>
         `}).join('');
+    },
+
+    async hideItem(type, name, event) {
+        if (event) {
+            event.stopPropagation();
+        }
+        if (confirm(`Are you sure you want to hide "${name}"? It will no longer be visible in the list.`)) {
+            const res = await this.request('hide_item', { type, name });
+            if (res.success) {
+                this.refreshData();
+            } else {
+                alert('Failed to hide item: ' + res.message);
+            }
+        }
     }
 };
 

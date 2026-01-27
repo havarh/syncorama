@@ -172,6 +172,24 @@ button:active {
     padding: 12px;
 }
 
+.hide-btn {
+    background: transparent;
+    border: 1px solid #444;
+    color: #ff4c4c;
+    /* Redish for delete/hide action */
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: all 0.2s;
+}
+
+.hide-btn:hover {
+    background: rgba(255, 76, 76, 0.1);
+    border-color: #ff4c4c;
+}
+
 /* Clipboard Styles */
 .clipboard-actions {
     display: flex;

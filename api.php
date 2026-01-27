@@ -270,6 +270,37 @@ try {
             jsonResponse(true, 'Files retrieved', ['files' => $fileList]);
             break;
 
+        case 'hide_item':
+            $type = $input['type'] ?? '';
+            $name = $input['name'] ?? '';
+
+            if (!$name || strpos($name, '/') !== false || strpos($name, '\\') !== false) {
+                jsonResponse(false, 'Invalid filename');
+            }
+
+            $dir = '';
+            if ($type === 'clipboard') {
+                $dir = CLIPBOARD_DIR;
+            } elseif ($type === 'file') {
+                $dir = UPLOAD_DIR;
+            } else {
+                jsonResponse(false, 'Invalid type');
+            }
+
+            $source = $dir . $name;
+            // Prevent hiding already hidden files or non-existent files
+            if (!file_exists($source) || strpos($name, '.') === 0) {
+                jsonResponse(false, 'File not found or invalid');
+            }
+
+            $target = $dir . '.' . $name;
+            if (rename($source, $target)) {
+                jsonResponse(true, 'Item hidden');
+            } else {
+                jsonResponse(false, 'Failed to hide item');
+            }
+            break;
+
         case 'logout':
             session_destroy();
             jsonResponse(true, 'Logged out');
