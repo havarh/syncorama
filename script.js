@@ -70,6 +70,20 @@ const app = {
 
         this.els.dropZone.addEventListener('drop', (e) => this.handleFiles(e.dataTransfer.files), false);
 
+        // Clipboard History Click
+        this.els.clipboardList.addEventListener('click', (e) => {
+            const li = e.target.closest('li');
+            if (!li) return;
+            const index = li.dataset.index;
+            if (this.state.clipboardHistory && this.state.clipboardHistory[index]) {
+                const content = this.state.clipboardHistory[index].content;
+                this.els.clipboardContent.value = content;
+                // Optional: visual feedback
+                this.els.clipboardContent.focus();
+                // Optional: Maybe auto-copy? The user just wants it in the field per request.
+            }
+        });
+
         // Global Paste Listener (Ctrl+V)
         document.addEventListener('paste', async (e) => {
             // Only handle if dashboard is visible (logged in)
@@ -359,12 +373,15 @@ const app = {
 
     // Clipboard Logic
     updateClipboardUI(data) {
+        // Store history for click handlers
+        this.state.clipboardHistory = data.history;
+
         if (data.current && document.activeElement !== this.els.clipboardContent) {
             this.els.clipboardContent.value = data.current;
         }
 
-        this.els.clipboardList.innerHTML = data.history.map(item => `
-            <li>
+        this.els.clipboardList.innerHTML = data.history.map((item, index) => `
+            <li data-index="${index}" style="cursor: pointer;">
                 <div class="content-preview">${escapeHtml(item.content.substring(0, 50))}${item.content.length > 50 ? '...' : ''}</div>
                 <div class="meta">${new Date(item.time * 1000).toLocaleString()}</div>
             </li>
