@@ -380,15 +380,17 @@ const app = {
             this.els.clipboardContent.value = data.current;
         }
 
-        this.els.clipboardList.innerHTML = data.history.map((item, index) => `
+        this.els.clipboardList.innerHTML = data.history.map((item, index) => {
+            const safeName = item.filename.replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+            return `
             <li data-index="${index}" style="cursor: pointer;">
                 <div class="content-preview">${escapeHtml(item.content.substring(0, 50))}${item.content.length > 50 ? '...' : ''}</div>
                 <div class="meta-group">
                     <span class="meta">${new Date(item.time * 1000).toLocaleString()}</span>
-                    <button class="hide-btn" onclick="app.hideItem('clipboard', '${item.filename}', event)">hide</button>
+                    <button class="hide-btn" data-type="clipboard" data-name="${safeName}" onclick="app.handleHideClick(this, event)">hide</button>
                 </div>
             </li>
-        `).join('');
+        `}).join('');
     },
 
     async copyToDevice() {
@@ -492,23 +494,27 @@ const app = {
         });
 
         // Render Images
-        this.els.imageGallery.innerHTML = images.map(file => `
+        this.els.imageGallery.innerHTML = images.map(file => {
+            // Safe filename escaping for attribute
+            const safeName = file.name.replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+            return `
             <li class="gallery-item">
                 <img src="${file.url}" class="gallery-thumb" alt="${escapeHtml(file.name)}" onclick="window.open('${file.url}', '_blank')">
                 <div class="gallery-meta">
                     <div class="gallery-name" title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</div>
                     <div style="display: flex; gap: 5px; margin-top: auto;">
                         <a href="${file.url}" download="${file.name}" class="gallery-download-btn" style="flex: 1;">Download</a>
-                        <button class="hide-btn" onclick="app.hideItem('file', '${file.name}', event)">hide</button>
+                        <button class="hide-btn" data-type="file" data-name="${safeName}" onclick="app.handleHideClick(this, event)">hide</button>
                     </div>
                 </div>
             </li>
-        `).join('');
+        `}).join('');
 
         // Render Other Files
         this.els.fileList.innerHTML = others.map(file => {
             const ext = file.name.split('.').pop().toLowerCase();
             const isPdf = ext === 'pdf';
+            const safeName = file.name.replace(/'/g, "&apos;").replace(/"/g, "&quot;");
 
             return `
             <li>
@@ -519,16 +525,22 @@ const app = {
                 <div class="actions">
                     ${isPdf ? `<a href="${file.url}" target="_blank" class="secondary-btn" style="padding: 5px 10px; font-size: 0.8rem; margin-right: 5px;">Preview</a>` : ''}
                     <a href="${file.url}" download="${file.name}" class="secondary-btn" style="padding: 5px 10px; font-size: 0.8rem;">Download</a>
-                    <button class="hide-btn" onclick="app.hideItem('file', '${file.name}', event)">hide</button>
+                    <button class="hide-btn" data-type="file" data-name="${safeName}" onclick="app.handleHideClick(this, event)">hide</button>
                 </div>
             </li>
         `}).join('');
     },
 
-    async hideItem(type, name, event) {
-        if (event) {
-            event.stopPropagation();
-        }
+    handleHideClick(btn, event) {
+        event.stopPropagation();
+        const type = btn.dataset.type;
+        const name = btn.dataset.name;
+        this.hideItem(type, name);
+    },
+
+    async hideItem(type, name, event = null) {
+        if (event) event.stopPropagation();
+
         if (confirm(`Are you sure you want to hide "${name}"? It will no longer be visible in the list.`)) {
             const res = await this.request('hide_item', { type, name });
             if (res.success) {
