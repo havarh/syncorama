@@ -1,0 +1,26 @@
+<?php
+// config.php
+// RENAME THIS FILE TO config.php
+
+// WebAuthn Configuration
+define('WEBAUTHN_NAME', 'Syncorama');
+define('WEBAUTHN_ID', 'example.com'); // This ties the passkey to the domain. Change to your domain (e.g., 'localhost' or 'mysite.com')
+// In production, this MUST be the actual domain name (e.g., 'example.com')
+
+// Define storage paths
+define('UPLOAD_DIR', __DIR__ . '/uploads/');
+define('CLIPBOARD_DIR', __DIR__ . '/clipboard_history/');
+define('DATA_DIR', __DIR__ . '/data/');
+define('USERS_FILE', DATA_DIR . 'users.json');
+
+// Ensure directories exist
+if (!is_dir(UPLOAD_DIR)) {
+    mkdir(UPLOAD_DIR, 0755, true);
+}
+if (!is_dir(CLIPBOARD_DIR)) {
+    mkdir(CLIPBOARD_DIR, 0755, true);
+}
+if (!is_dir(DATA_DIR)) {
+    mkdir(DATA_DIR, 0755, true);
+}
+?>

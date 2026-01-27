@@ -1,0 +1,13 @@
+config.php
+**/.DS_Store
+uploads/*
+!uploads/.gitkeep
+clipboard_history/*
+!clipboard_history/.gitkeep
+data/*
+!data/.gitkeep
+vendor/
+node_modules/
+.idea/
+.vscode/
+*.log

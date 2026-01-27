@@ -1,0 +1,31 @@
+MANUAL INSTALLATION INSTRUCTIONS
+==============================
+
+Since you are not using Composer, you must install the WebAuthn library manually.
+
+1. Download the library from GitHub:
+   https://github.com/lbuchs/WebAuthn/archive/master.zip
+
+2. Extract the ZIP file.
+
+3. Locate the `src` folder inside the extracted archive.
+
+4. Upload the CONTENTS of the `src` folder to `lib/lbuchs/WebAuthn/` on your server.
+
+   Your file structure should look like this:
+   /syncorama
+     /api.php
+     /lib
+       /lbuchs
+         /WebAuthn
+           /WebAuthn.php
+           /WebAuthnException.php
+           /Binary
+             /ByteBuffer.php
+           /Attestation
+             ...
+           /CBOR
+             ...
+           ...
+
+5. Once uploaded, the application will work automatically.
