@@ -45,7 +45,7 @@
                         <textarea id="clipboard-content" placeholder="Current clipboard content..."></textarea>
                         <div class="btn-group">
                             <button id="copy-btn" class="primary-btn">Copy to Device</button>
-                            <button id="paste-btn" class="secondary-btn">Push to Server</button>
+                            <button id="paste-btn" class="secondary-btn">Paste to Server</button>
                         </div>
                     </div>
                 </section>
