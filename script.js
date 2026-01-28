@@ -460,7 +460,8 @@ const app = {
                     const imageType = item.types.find(type => type.startsWith('image/'));
                     if (imageType) {
                         const blob = await item.getType(imageType);
-                        const file = new File([blob], `clipboard_image_${new Date().toISOString().replace(/[:.]/g, '-')}.${imageType.split('/')[1]}`, { type: imageType });
+                        const timestamp = new Date().toISOString().replace(/[-:]/g, '').split('.')[0];
+                        const file = new File([blob], `clipboard_${timestamp}.${imageType.split('/')[1]}`, { type: imageType });
 
                         // Reuse handleFiles logic manually to upload
                         this.els.uploadProgress.classList.remove('hidden');
@@ -547,7 +548,7 @@ const app = {
             <li class="gallery-item">
                 <img src="${file.url}" class="gallery-thumb" alt="${escapeHtml(file.name)}" onclick="window.open('${file.url}', '_blank')">
                 <div class="gallery-meta">
-                    <div class="gallery-name" title="${escapeHtml(file.name)}" data-ext="${escapeHtml(file.name.split('.').pop().toLowerCase())}">${escapeHtml(file.name)}</div>
+                    <div class="gallery-name" title="${escapeHtml(file.name)}" data-ext="${escapeHtml(file.name.split('.').pop().toLowerCase().replace(/jpg/g, 'jpeg'))}">${escapeHtml(file.name)}</div>
                     <div style="display: flex; gap: 5px; margin-top: auto;">
                         <a href="${file.url}" download="${file.name}" class="gallery-download-btn" style="flex: 1;">Download</a>
                         <button class="hide-btn" data-type="file" data-name="${safeName}" onclick="app.handleHideClick(this, event)">Hide</button>
