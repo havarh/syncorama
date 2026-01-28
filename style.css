@@ -327,13 +327,33 @@ li a {
     font-size: 0.9rem;
     font-weight: 600;
     max-width: 100%;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
     color: var(--text-main);
     display: flex;
     align-items: center;
     gap: 8px;
+    min-width: 0;
+}
+
+.gallery-name-text {
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.gallery-info {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.gallery-info .res {
+    color: var(--accent-2);
+    font-weight: 600;
 }
 
 .gallery-name::before {

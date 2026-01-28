@@ -270,9 +270,51 @@ try {
             foreach ($files as $file) {
                 if (is_file($file)) {
                     $name = basename($file);
+                    $size = filesize($file);
+                    $dimensions = null;
+                    $serialNumber = null;
+                    $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+                    $imgExts = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'avif', 'svg'];
+
+                    if (in_array($ext, $imgExts)) {
+                        $imgData = @getimagesize($file);
+                        if ($imgData) {
+                            $dimensions = ['width' => $imgData[0], 'height' => $imgData[1]];
+                        }
+                    } elseif ($ext === 'csv') {
+                        $content = file_get_contents($file);
+
+                        // Handle UTF-16LE encoding often used in Windows-generated CSVs
+                        if (str_starts_with($content, "\xFF\xFE")) {
+                            $content = mb_convert_encoding($content, 'UTF-8', 'UTF-16LE');
+                        }
+
+                        // Strip BOM if present
+                        $content = preg_replace('/^\xEF\xBB\xBF/', '', $content);
+
+                        // Split into lines
+                        $lines = explode("\n", str_replace("\r", "", $content));
+                        if (count($lines) >= 2) {
+                            // Try to detect delimiter
+                            $delimiters = [",", ";", "\t"];
+                            foreach ($delimiters as $delim) {
+                                $header = str_getcsv($lines[0], $delim);
+                                if ($header && isset($header[0]) && trim($header[0], "\" ") === "Device Serial Number") {
+                                    $firstRow = str_getcsv($lines[1], $delim);
+                                    if ($firstRow && isset($firstRow[0])) {
+                                        $serialNumber = trim($firstRow[0], "\" ");
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     $fileList[] = [
                         'name' => $name,
-                        'size' => filesize($file),
+                        'size' => $size,
+                        'dimensions' => $dimensions,
+                        'serialNumber' => $serialNumber,
                         'time' => filemtime($file),
                         'url' => 'api.php?action=serve_file&name=' . urlencode($name)
                     ];

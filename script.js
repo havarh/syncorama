@@ -548,7 +548,11 @@ const app = {
             <li class="gallery-item">
                 <img src="${file.url}" class="gallery-thumb" alt="${escapeHtml(file.name)}" onclick="window.open('${file.url}', '_blank')">
                 <div class="gallery-meta">
-                    <div class="gallery-name" title="${escapeHtml(file.name)}" data-ext="${escapeHtml(file.name.split('.').pop().toLowerCase().replace(/jpg/g, 'jpeg'))}">${escapeHtml(file.name)}</div>
+                    <div class="gallery-name" title="${escapeHtml(file.name)}" data-ext="${escapeHtml(file.name.split('.').pop().toLowerCase().replace(/jpg/g, 'jpeg'))}"><span class="gallery-name-text">${escapeHtml(file.name)}</span></div>
+                    <div class="gallery-info">
+                        ${file.dimensions ? `<span class="res">${file.dimensions.width}x${file.dimensions.height}</span> • ` : ''}
+                        <span class="size">${formatSize(file.size)}</span>
+                    </div>
                     <div style="display: flex; gap: 5px; margin-top: auto;">
                         <a href="${file.url}" download="${file.name}" class="gallery-download-btn" style="flex: 1;">Download</a>
                         <button class="hide-btn" data-type="file" data-name="${safeName}" onclick="app.handleHideClick(this, event)">Hide</button>
@@ -566,8 +570,8 @@ const app = {
             return `
             <li>
                 <div>
-                    <strong class="gallery-name" data-ext="${escapeHtml(file.name.split('.').pop().toLowerCase())}">${escapeHtml(file.name)}</strong>
-                    <div class="meta">${formatSize(file.size)}</div>
+                    <strong class="gallery-name" data-ext="${escapeHtml(file.name.split('.').pop().toLowerCase())}"><span class="gallery-name-text">${escapeHtml(file.name)}</span></strong>
+                    <div class="meta">${formatSize(file.size)}${file.serialNumber ? ` • <span style="color:var(--accent-2); font-weight:bold;">SN: ${escapeHtml(file.serialNumber)}</span>` : ''}</div>
                 </div>
                 <div class="actions">
                     ${isPdf ? `<a href="${file.url}" target="_blank" class="secondary-btn" style="padding: 5px 10px; font-size: 0.8rem; margin-right: 5px;">Preview</a>` : ''}
@@ -613,7 +617,7 @@ function escapeHtml(text) {
 function formatSize(bytes) {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const sizes = ['Bytes', 'KiB', 'MiB', 'GiB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
