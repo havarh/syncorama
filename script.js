@@ -147,12 +147,12 @@ const app = {
             try {
                 return JSON.parse(text);
             } catch (e) {
-                this.log('SERVER ERROR:', text);
+                console.error('SERVER ERROR:', text);
                 document.getElementById('auth-status').innerText = 'Server Error (Check Console)'; // Show visual feedback
                 return { success: false, message: 'Server Error: ' + text.substring(0, 100) };
             }
         } catch (e) {
-            this.log('API Error:', e);
+            console.error('API Error:', e);
             return { success: false, message: 'Network error' };
         }
     },
@@ -162,7 +162,14 @@ const app = {
         this.log('Auth check response:', res);
 
         if (res.success) {
+            this.log('Server Debug:', res.data.debug);
             this.state.debug = res.data.appDebug || false;
+
+            if (res.data.appDemo) {
+                this.setStatus('Demo Mode Enabled (Public Access)');
+                document.getElementById('auth-status').style.color = 'var(--accent-1)';
+            }
+
             if (res.data.loggedIn) {
                 this.showDashboard();
             } else {
@@ -308,7 +315,7 @@ const app = {
             }
 
         } catch (e) {
-            this.log('Login cancelled or failed:', e);
+            console.error(e);
             this.setStatus('Login cancelled or failed.');
         }
     },
@@ -321,7 +328,7 @@ const app = {
 
         // If input is not a string, check if it's already an array buffer or similar, otherwise error
         if (typeof input !== 'string') {
-            this.log('base64UrlDecode expected string, got:', typeof input, input);
+            console.warn('base64UrlDecode expected string, got:', typeof input, input);
             return new Uint8Array(0);
         }
 
@@ -330,7 +337,7 @@ const app = {
             try {
                 const inner = input.substring(11, input.length - 2);
                 return Uint8Array.from(atob(inner), c => c.charCodeAt(0));
-            } catch (e) { this.log('Decoding BINARY format failed', e); return new Uint8Array(0); }
+            } catch (e) { console.error('Decoding BINARY format failed', e); return new Uint8Array(0); }
         }
 
         // Replace non-url compatible chars with base64 standard chars
@@ -345,7 +352,7 @@ const app = {
         try {
             return Uint8Array.from(atob(padded), c => c.charCodeAt(0));
         } catch (e) {
-            this.log('Base64Decode failed', e);
+            console.error('Base64Decode failed', e);
             return new Uint8Array(0);
         }
     },
@@ -409,6 +416,7 @@ const app = {
                 <div class="content-preview">${escapeHtml(item.content.substring(0, 50))}${item.content.length > 50 ? '...' : ''}</div>
                 <div class="meta-group">
                     <span class="meta">${new Date(item.time * 1000).toLocaleString()}</span>
+                    <button class="secondary-btn" style="padding: 2px 8px; font-size: 0.7rem; margin-right: 5px;" onclick="app.downloadClipboardItem(${index}, event)">dl</button>
                     <button class="hide-btn" data-type="clipboard" data-name="${safeName}" onclick="app.handleHideClick(this, event)">hide</button>
                 </div>
             </li>
@@ -424,6 +432,22 @@ const app = {
             this.els.copyBtn.innerText = 'Copied!';
             setTimeout(() => this.els.copyBtn.innerText = originalText, 2000);
         } catch (err) { alert('Failed to copy'); }
+    },
+
+    downloadClipboardItem(index, event) {
+        event.stopPropagation();
+        const item = this.state.clipboardHistory[index];
+        if (!item) return;
+
+        const blob = new Blob([item.content], { type: 'text/plain' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = item.filename;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
     },
 
     async pushToServer() {

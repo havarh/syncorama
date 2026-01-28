@@ -83,7 +83,7 @@ try {
 }
 
 $input = json_decode(file_get_contents('php://input'), true);
-$action = $_POST['action'] ?? $input['action'] ?? '';
+$action = $_POST['action'] ?? $_GET['action'] ?? $input['action'] ?? '';
 
 try {
     // --- Unauthenticated Actions (Login/Register Flow) ---
@@ -104,10 +104,11 @@ try {
         ];
 
         jsonResponse(true, 'Status', [
-            'loggedIn' => !empty($_SESSION['logged_in']),
+            'loggedIn' => !empty($_SESSION['logged_in']) || (defined('APP_DEMO') && APP_DEMO),
             'hasUsers' => count($users) > 0,
             'debug' => (defined('APP_DEBUG') && APP_DEBUG) ? $checks : null,
-            'appDebug' => (defined('APP_DEBUG') && APP_DEBUG)
+            'appDebug' => (defined('APP_DEBUG') && APP_DEBUG),
+            'appDemo' => (defined('APP_DEMO') && APP_DEMO)
         ]);
     }
 
@@ -212,7 +213,10 @@ try {
 
     // --- Authenticated Actions ---
 
-    if (empty($_SESSION['logged_in'])) {
+    $isLoggedIn = !empty($_SESSION['logged_in']);
+    $isDemo = (defined('APP_DEMO') && APP_DEMO);
+
+    if (!$isLoggedIn && !$isDemo) {
         jsonResponse(false, 'Unauthorized');
     }
 
@@ -265,11 +269,12 @@ try {
             $fileList = [];
             foreach ($files as $file) {
                 if (is_file($file)) {
+                    $name = basename($file);
                     $fileList[] = [
-                        'name' => basename($file),
+                        'name' => $name,
                         'size' => filesize($file),
                         'time' => filemtime($file),
-                        'url' => 'uploads/' . basename($file)
+                        'url' => 'api.php?action=serve_file&name=' . urlencode($name)
                     ];
                 }
             }
@@ -309,6 +314,28 @@ try {
                 jsonResponse(false, 'Failed to hide item');
             }
             break;
+
+        case 'serve_file':
+            $name = $_GET['name'] ?? '';
+            if (!$name || strpos($name, '/') !== false || strpos($name, '\\') !== false) {
+                header("HTTP/1.1 400 Bad Request");
+                exit;
+            }
+
+            $path = UPLOAD_DIR . $name;
+            if (!file_exists($path)) {
+                header("HTTP/1.1 404 Not Found");
+                exit;
+            }
+
+            $mime = mime_content_type($path);
+            header("Content-Type: " . $mime);
+            header("Content-Length: " . filesize($path));
+            // Cache control for performance
+            header("Cache-Control: private, max-age=604800");
+
+            readfile($path);
+            exit;
 
         case 'logout':
             session_destroy();

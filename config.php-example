@@ -4,6 +4,7 @@
 
 // Application Settings
 define('APP_DEBUG', false); // Set to true to enable detailed logging
+define('APP_DEMO', false);  // Set to true to allow access without login
 
 // WebAuthn Configuration
 define('WEBAUTHN_NAME', 'Syncorama');

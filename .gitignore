@@ -1,10 +1,13 @@
 config.php
 **/.DS_Store
 uploads/*
+!uploads/.htaccess
 !uploads/.gitkeep
 clipboard_history/*
+!clipboard_history/.htaccess
 !clipboard_history/.gitkeep
 data/*
+!data/.htaccess
 !data/.gitkeep
 vendor/
 node_modules/
