@@ -284,7 +284,7 @@ try {
                     } elseif ($ext === 'csv') {
                         /**
                          * Why did I add a feature to read the serial number of Autopilot CSV files?
-                         * Oh, well…    
+                         * Oh, well…
                          */
                         $content = file_get_contents($file);
 
