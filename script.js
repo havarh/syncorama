@@ -42,11 +42,11 @@ const app = {
         this.els.loginBox.innerHTML = `
             <h1>Syncorama</h1>
             <p>Secure Clipboard & File Sync</p>
-            <div id="auth-actions" style="margin-top: 2rem; display: flex; flex-direction: column; gap: 10px;">
+            <div id="auth-actions" class="auth-actions">
                 <button id="webauthn-login-btn" class="primary-btn">Login with Passkey</button>
                 <button id="webauthn-register-btn" class="secondary-btn hidden">Register New Device</button>
             </div>
-            <p id="auth-status" style="margin-top: 1rem; font-size: 0.8rem; color: #888;"></p>
+            <p id="auth-status" class="auth-status"></p>
         `;
     },
 
@@ -412,7 +412,7 @@ const app = {
         this.els.clipboardList.innerHTML = data.history.map((item, index) => {
             const safeName = item.filename.replace(/'/g, "&apos;").replace(/"/g, "&quot;");
             return `
-            <li data-index="${index}" style="cursor: pointer;">
+            <li data-index="${index}" class="history-item">
                 <div class="content-preview">${escapeHtml(item.content.substring(0, 50))}${item.content.length > 50 ? '...' : ''}</div>
                 <div class="meta-group">
                     <span class="meta">${new Date(item.time * 1000).toLocaleString()}</span>
@@ -554,8 +554,8 @@ const app = {
                         <span class="size">${formatSize(file.size)}</span> • 
                         <span class="date">${new Date(file.time * 1000).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}</span>
                     </div>
-                    <div style="display: flex; gap: 5px; margin-top: auto;">
-                        <a href="${file.url}" download="${file.name}" class="file-action-btn gallery-download-btn" style="flex: 1;">Download</a>
+                    <div class="gallery-actions">
+                        <a href="${file.url}" download="${file.name}" class="file-action-btn gallery-download-btn">Download</a>
                         <button class="hide-btn" data-type="file" data-name="${safeName}" onclick="app.handleHideClick(this, event)">Hide</button>
                     </div>
                 </div>
@@ -572,10 +572,10 @@ const app = {
             <li>
                 <div>
                     <strong class="gallery-name" data-ext="${escapeHtml(file.name.split('.').pop().toLowerCase())}"><span class="gallery-name-text">${escapeHtml(file.name)}</span></strong>
-                    <div class="meta">${formatSize(file.size)}${file.serialNumber ? ` • <span style="color:var(--accent-2); font-weight:bold;">SN: ${escapeHtml(file.serialNumber)}</span>` : ''} • ${new Date(file.time * 1000).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}</div>
+                    <div class="meta">${formatSize(file.size)}${file.serialNumber ? ` • <span class="sn-tag">SN: ${escapeHtml(file.serialNumber)}</span>` : ''} • ${new Date(file.time * 1000).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}</div>
                 </div>
                 <div class="actions">
-                    ${isPdf ? `<a href="${file.url}" target="_blank" class="file-action-btn" style="margin-right: 5px;">Preview</a>` : ''}
+                    ${isPdf ? `<a href="${file.url}" target="_blank" class="file-action-btn preview-btn">Preview</a>` : ''}
                     <a href="${file.url}" download="${file.name}" class="file-action-btn">Download</a>
                     <button class="hide-btn" data-type="file" data-name="${safeName}" onclick="app.handleHideClick(this, event)">Hide</button>
                 </div>

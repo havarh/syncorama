@@ -247,7 +247,8 @@ ul {
     overflow-y: auto;
 }
 
-li {
+li,
+.history-item {
     background: rgba(255, 255, 255, 0.03);
     margin-bottom: 0.5rem;
     padding: 0.8rem;
@@ -256,6 +257,11 @@ li {
     justify-content: space-between;
     align-items: center;
     font-size: 0.9rem;
+    cursor: default;
+}
+
+.history-item {
+    cursor: pointer;
 }
 
 li .meta {
@@ -423,6 +429,35 @@ li a {
     margin-right: 10px;
     margin-left: 10px;
     width: 7rem;
+    flex: 1;
+}
+
+.auth-actions {
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.auth-status {
+    margin-top: 1rem;
+    font-size: 0.8rem;
+    color: #888;
+}
+
+.gallery-actions {
+    display: flex;
+    gap: 5px;
+    margin-top: auto;
+}
+
+.sn-tag {
+    color: var(--accent-2);
+    font-weight: bold;
+}
+
+.preview-btn {
+    margin-right: 5px;
 }
 
 .history-dl-btn {
