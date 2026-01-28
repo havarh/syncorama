@@ -24,7 +24,7 @@ body {
         radial-gradient(circle at 10% 20%, rgba(88, 101, 242, 0.15) 0%, transparent 40%),
         radial-gradient(circle at 90% 80%, rgba(255, 76, 210, 0.1) 0%, transparent 40%);
     color: var(--text-main);
-    width: 100vw;
+    width: 100%;
     height: 100vh;
     height: 100dvh;
     /* Fix for mobile address bars */
@@ -274,6 +274,7 @@ li a {
     }
 }
 
+
 /* Image Gallery */
 .gallery-grid {
     display: grid;
@@ -432,4 +433,65 @@ li a {
 
 img {
     background-image: url(data:image/gif;base64,R0lGODlhCgAKAKECADAwMEdHR15eXl5eXiH5BAEKAAIALAAAAAAKAAoAAAIRhB2ZhxoM3GMSykqd1VltzxQAOw==) !important;
+}
+
+@media (max-width: 600px) {
+    .screen {
+        padding: 0.5rem;
+    }
+
+    .card {
+        padding: 1rem;
+    }
+
+    .logo {
+        font-size: 2.2rem;
+    }
+
+    li {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.8rem;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+    }
+
+    li>div:first-child {
+        width: 100%;
+        overflow: hidden;
+    }
+
+    .content-preview {
+        word-break: break-word;
+        overflow-wrap: anywhere;
+    }
+
+    .meta-group,
+    .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: flex-start;
+        align-items: center;
+        width: 100%;
+    }
+
+    .meta-group .meta {
+        width: 100%;
+        margin-bottom: 0.2rem;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+    }
+
+    .gallery-item .gallery-name {
+        max-width: 100%;
+    }
+
+    .gallery-grid {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    }
+
+    .files-list-card {
+        max-width: 412px;
+    }
 }
