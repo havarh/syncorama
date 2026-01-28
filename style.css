@@ -392,30 +392,44 @@ li a {
     color: #b388ff;
 }
 
-.gallery-download-btn {
-    margin-top: auto;
+.file-action-btn {
     background: var(--primary);
     color: white;
     border: none;
     padding: 6px 12px;
-    margin-right: 10px;
-    margin-left: 10px;
-    max-width: 7rem;
-    width: 7rem;
     border-radius: 6px;
     font-size: 0.8rem;
+    font-weight: 600;
     cursor: pointer;
     text-decoration: none;
     text-align: center;
-    transition: background 0.2s;
+    transition: background 0.2s, transform 0.1s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.gallery-download-btn:hover {
+.file-action-btn:hover {
     background: var(--accent-1);
+}
+
+.file-action-btn:active {
+    transform: scale(0.95);
+}
+
+.gallery-download-btn {
+    margin-top: auto;
+    margin-right: 10px;
+    margin-left: 10px;
+    width: 7rem;
 }
 
 .history-dl-btn {
     padding: 2px 8px;
     font-size: 0.7rem;
     margin-right: 5px;
+}
+
+img {
+    background-image: url(data:image/gif;base64,R0lGODlhCgAKAKECADAwMEdHR15eXl5eXiH5BAEKAAIALAAAAAAKAAoAAAIRhB2ZhxoM3GMSykqd1VltzxQAOw==) !important;
 }

@@ -416,7 +416,7 @@ const app = {
                 <div class="content-preview">${escapeHtml(item.content.substring(0, 50))}${item.content.length > 50 ? '...' : ''}</div>
                 <div class="meta-group">
                     <span class="meta">${new Date(item.time * 1000).toLocaleString()}</span>
-                    <button class="gallery-download-btn history-dl-btn" onclick="app.downloadClipboardItem(${index}, event)">Download</button>
+                    <button class="file-action-btn history-dl-btn" onclick="app.downloadClipboardItem(${index}, event)">Download</button>
                     <button class="hide-btn" data-type="clipboard" data-name="${safeName}" onclick="app.handleHideClick(this, event)">Hide</button>
                 </div>
             </li>
@@ -554,7 +554,7 @@ const app = {
                         <span class="size">${formatSize(file.size)}</span>
                     </div>
                     <div style="display: flex; gap: 5px; margin-top: auto;">
-                        <a href="${file.url}" download="${file.name}" class="gallery-download-btn" style="flex: 1;">Download</a>
+                        <a href="${file.url}" download="${file.name}" class="file-action-btn gallery-download-btn" style="flex: 1;">Download</a>
                         <button class="hide-btn" data-type="file" data-name="${safeName}" onclick="app.handleHideClick(this, event)">Hide</button>
                     </div>
                 </div>
@@ -574,8 +574,8 @@ const app = {
                     <div class="meta">${formatSize(file.size)}${file.serialNumber ? ` • <span style="color:var(--accent-2); font-weight:bold;">SN: ${escapeHtml(file.serialNumber)}</span>` : ''}</div>
                 </div>
                 <div class="actions">
-                    ${isPdf ? `<a href="${file.url}" target="_blank" class="secondary-btn" style="padding: 5px 10px; font-size: 0.8rem; margin-right: 5px;">Preview</a>` : ''}
-                    <a href="${file.url}" download="${file.name}" class="secondary-btn" style="padding: 5px 10px; font-size: 0.8rem;">Download</a>
+                    ${isPdf ? `<a href="${file.url}" target="_blank" class="file-action-btn" style="margin-right: 5px;">Preview</a>` : ''}
+                    <a href="${file.url}" download="${file.name}" class="file-action-btn">Download</a>
                     <button class="hide-btn" data-type="file" data-name="${safeName}" onclick="app.handleHideClick(this, event)">Hide</button>
                 </div>
             </li>
