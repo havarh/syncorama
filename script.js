@@ -21,7 +21,14 @@ const app = {
 
     state: {
         pollingInterval: null,
-        isPaused: false
+        isPaused: false,
+        debug: false
+    },
+
+    log(...args) {
+        if (this.state.debug) {
+            console.log('[DEBUG]', ...args);
+        }
     },
 
     init() {
@@ -112,7 +119,8 @@ const app = {
                 this.els.clipboardContent.value = text;
 
                 // Auto-save to server
-                if (res.success) this.refreshData();
+                const pushRes = await this.pushToServer();
+                if (pushRes && pushRes.success) this.refreshData();
             }
         });
     },
@@ -135,24 +143,26 @@ const app = {
 
             const response = await fetch(API_URL, opts);
             const text = await response.text();
-            console.log('API Response Raw:', text); // DEBUG LOG
+            this.log('API Response Raw:', text); // DEBUG LOG
             try {
                 return JSON.parse(text);
             } catch (e) {
-                console.error('SERVER ERROR:', text);
+                this.log('SERVER ERROR:', text);
                 document.getElementById('auth-status').innerText = 'Server Error (Check Console)'; // Show visual feedback
                 return { success: false, message: 'Server Error: ' + text.substring(0, 100) };
             }
         } catch (e) {
-            console.error('API Error:', e);
+            this.log('API Error:', e);
             return { success: false, message: 'Network error' };
         }
     },
 
     async checkAuth() {
         const res = await this.request('check_status');
+        this.log('Auth check response:', res);
+
         if (res.success) {
-            console.log('Server Debug:', res.data.debug);
+            this.state.debug = res.data.appDebug || false;
             if (res.data.loggedIn) {
                 this.showDashboard();
             } else {
@@ -298,7 +308,7 @@ const app = {
             }
 
         } catch (e) {
-            console.error(e);
+            this.log('Login cancelled or failed:', e);
             this.setStatus('Login cancelled or failed.');
         }
     },
@@ -311,7 +321,7 @@ const app = {
 
         // If input is not a string, check if it's already an array buffer or similar, otherwise error
         if (typeof input !== 'string') {
-            console.warn('base64UrlDecode expected string, got:', typeof input, input);
+            this.log('base64UrlDecode expected string, got:', typeof input, input);
             return new Uint8Array(0);
         }
 
@@ -320,7 +330,7 @@ const app = {
             try {
                 const inner = input.substring(11, input.length - 2);
                 return Uint8Array.from(atob(inner), c => c.charCodeAt(0));
-            } catch (e) { console.error('Decoding BINARY format failed', e); return new Uint8Array(0); }
+            } catch (e) { this.log('Decoding BINARY format failed', e); return new Uint8Array(0); }
         }
 
         // Replace non-url compatible chars with base64 standard chars
@@ -335,7 +345,7 @@ const app = {
         try {
             return Uint8Array.from(atob(padded), c => c.charCodeAt(0));
         } catch (e) {
-            console.error('Base64Decode failed', e);
+            this.log('Base64Decode failed', e);
             return new Uint8Array(0);
         }
     },

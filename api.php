@@ -3,10 +3,16 @@
 require_once 'config.php';
 
 // ENABLE DEBUGGING
-ini_set('display_errors', 0); // Disable display errors to avoid breaking JSON
-ini_set('display_startup_errors', 0);
-ini_set('log_errors', 1); // Log to file instead
-error_reporting(E_ALL);
+if (defined('APP_DEBUG') && APP_DEBUG) {
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
+    error_reporting(E_ALL);
+} else {
+    ini_set('display_errors', 0);
+    ini_set('display_startup_errors', 0);
+    error_reporting(0);
+}
+ini_set('log_errors', 1); // Always log to file for security/audit
 
 // Start output buffering to capture any unwanted output
 ob_start();
@@ -50,7 +56,9 @@ function getUsers()
 
 function saveUser($user)
 {
-    echo "DEBUG: Saving user " . print_r($user, true);
+    if (defined('APP_DEBUG') && APP_DEBUG) {
+        error_log("DEBUG: Saving user " . print_r($user, true));
+    }
     $users = getUsers();
     $users[] = $user;
     file_put_contents(USERS_FILE, json_encode($users, JSON_PRETTY_PRINT));
@@ -98,7 +106,8 @@ try {
         jsonResponse(true, 'Status', [
             'loggedIn' => !empty($_SESSION['logged_in']),
             'hasUsers' => count($users) > 0,
-            'debug' => $checks
+            'debug' => (defined('APP_DEBUG') && APP_DEBUG) ? $checks : null,
+            'appDebug' => (defined('APP_DEBUG') && APP_DEBUG)
         ]);
     }
 

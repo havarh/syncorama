@@ -2,6 +2,9 @@
 // config.php
 // RENAME THIS FILE TO config.php
 
+// Application Settings
+define('APP_DEBUG', false); // Set to true to enable detailed logging
+
 // WebAuthn Configuration
 define('WEBAUTHN_NAME', 'Syncorama');
 define('WEBAUTHN_ID', 'example.com'); // This ties the passkey to the domain. Change to your domain (e.g., 'localhost' or 'mysite.com')
