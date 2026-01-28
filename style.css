@@ -319,10 +319,14 @@ li a {
     /* Important for truncation in flex child */
 }
 
+.gallery-item .gallery-name {
+    max-width: 14rem;
+}
+
 .gallery-name {
     font-size: 0.9rem;
     font-weight: 600;
-    max-width: 18rem;
+    max-width: 100%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -334,7 +338,7 @@ li a {
 
 .gallery-name::before {
     content: attr(data-ext);
-    background: var(--bg-dark);
+    background: var(--bg-deep);
     color: var(--accent-2);
     font-size: 0.65rem;
     font-weight: 700;
