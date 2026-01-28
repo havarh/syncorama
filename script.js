@@ -551,7 +551,8 @@ const app = {
                     <div class="gallery-name" title="${escapeHtml(file.name)}" data-ext="${escapeHtml(file.name.split('.').pop().toLowerCase().replace(/jpg/g, 'jpeg'))}"><span class="gallery-name-text">${escapeHtml(file.name)}</span></div>
                     <div class="gallery-info">
                         ${file.dimensions ? `<span class="res">${file.dimensions.width}x${file.dimensions.height}</span> • ` : ''}
-                        <span class="size">${formatSize(file.size)}</span>
+                        <span class="size">${formatSize(file.size)}</span> • 
+                        <span class="date">${new Date(file.time * 1000).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}</span>
                     </div>
                     <div style="display: flex; gap: 5px; margin-top: auto;">
                         <a href="${file.url}" download="${file.name}" class="file-action-btn gallery-download-btn" style="flex: 1;">Download</a>
@@ -571,7 +572,7 @@ const app = {
             <li>
                 <div>
                     <strong class="gallery-name" data-ext="${escapeHtml(file.name.split('.').pop().toLowerCase())}"><span class="gallery-name-text">${escapeHtml(file.name)}</span></strong>
-                    <div class="meta">${formatSize(file.size)}${file.serialNumber ? ` • <span style="color:var(--accent-2); font-weight:bold;">SN: ${escapeHtml(file.serialNumber)}</span>` : ''}</div>
+                    <div class="meta">${formatSize(file.size)}${file.serialNumber ? ` • <span style="color:var(--accent-2); font-weight:bold;">SN: ${escapeHtml(file.serialNumber)}</span>` : ''} • ${new Date(file.time * 1000).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}</div>
                 </div>
                 <div class="actions">
                     ${isPdf ? `<a href="${file.url}" target="_blank" class="file-action-btn" style="margin-right: 5px;">Preview</a>` : ''}
