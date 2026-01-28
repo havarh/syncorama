@@ -32,7 +32,7 @@
             <header>
                 <div class="logo">Syncorama</div>
                 <div style="display: flex; gap: 10px;">
-                    <button id="pause-btn" class="icon-btn">Pause</button>
+                    <button id="pause-btn" class="icon-btn">⏸</button>
                     <button id="logout-btn" class="icon-btn">Logout</button>
                 </div>
             </header>

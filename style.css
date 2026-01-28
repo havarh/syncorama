@@ -19,7 +19,7 @@
 
 body {
     font-family: 'Outfit', sans-serif;
-    background-color: var(--bg-dark);
+    background-color: var(--bg-deep);
     background-image:
         radial-gradient(circle at 10% 20%, rgba(88, 101, 242, 0.15) 0%, transparent 40%),
         radial-gradient(circle at 90% 80%, rgba(255, 76, 210, 0.1) 0%, transparent 40%);
@@ -328,6 +328,45 @@ li a {
     overflow: hidden;
     text-overflow: ellipsis;
     color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.gallery-name::before {
+    content: attr(data-ext);
+    background: var(--bg-dark);
+    color: var(--accent-2);
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+}
+
+/* Specific colors for common extensions */
+.gallery-name[data-ext="png"]::before {
+    color: #00d2ff;
+}
+
+.gallery-name[data-ext="jpg"]::before,
+.gallery-name[data-ext="jpeg"]::before {
+    color: #ffca28;
+}
+
+.gallery-name[data-ext="gif"]::before {
+    color: #ff7eb3;
+}
+
+.gallery-name[data-ext="pdf"]::before {
+    color: #ff5252;
+}
+
+.gallery-name[data-ext="zip"]::before,
+.gallery-name[data-ext="rar"]::before {
+    color: #b388ff;
 }
 
 .gallery-download-btn {
@@ -350,4 +389,10 @@ li a {
 
 .gallery-download-btn:hover {
     background: var(--accent-1);
+}
+
+.history-dl-btn {
+    padding: 2px 8px;
+    font-size: 0.7rem;
+    margin-right: 5px;
 }

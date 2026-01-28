@@ -386,7 +386,7 @@ const app = {
 
     togglePause() {
         this.state.isPaused = !this.state.isPaused;
-        this.els.pauseBtn.innerText = this.state.isPaused ? 'Resume' : 'Pause';
+        this.els.pauseBtn.innerText = this.state.isPaused ? '▶' : '⏸';
         this.els.pauseBtn.style.borderColor = this.state.isPaused ? 'var(--accent-1)' : '';
         this.els.pauseBtn.style.color = this.state.isPaused ? 'var(--accent-1)' : '';
     },
@@ -416,8 +416,8 @@ const app = {
                 <div class="content-preview">${escapeHtml(item.content.substring(0, 50))}${item.content.length > 50 ? '...' : ''}</div>
                 <div class="meta-group">
                     <span class="meta">${new Date(item.time * 1000).toLocaleString()}</span>
-                    <button class="secondary-btn" style="padding: 2px 8px; font-size: 0.7rem; margin-right: 5px;" onclick="app.downloadClipboardItem(${index}, event)">dl</button>
-                    <button class="hide-btn" data-type="clipboard" data-name="${safeName}" onclick="app.handleHideClick(this, event)">hide</button>
+                    <button class="gallery-download-btn history-dl-btn" onclick="app.downloadClipboardItem(${index}, event)">Download</button>
+                    <button class="hide-btn" data-type="clipboard" data-name="${safeName}" onclick="app.handleHideClick(this, event)">Hide</button>
                 </div>
             </li>
         `}).join('');
@@ -547,10 +547,10 @@ const app = {
             <li class="gallery-item">
                 <img src="${file.url}" class="gallery-thumb" alt="${escapeHtml(file.name)}" onclick="window.open('${file.url}', '_blank')">
                 <div class="gallery-meta">
-                    <div class="gallery-name" title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</div>
+                    <div class="gallery-name" title="${escapeHtml(file.name)}" data-ext="${escapeHtml(file.name.split('.').pop().toLowerCase())}">${escapeHtml(file.name)}</div>
                     <div style="display: flex; gap: 5px; margin-top: auto;">
                         <a href="${file.url}" download="${file.name}" class="gallery-download-btn" style="flex: 1;">Download</a>
-                        <button class="hide-btn" data-type="file" data-name="${safeName}" onclick="app.handleHideClick(this, event)">hide</button>
+                        <button class="hide-btn" data-type="file" data-name="${safeName}" onclick="app.handleHideClick(this, event)">Hide</button>
                     </div>
                 </div>
             </li>
@@ -565,13 +565,13 @@ const app = {
             return `
             <li>
                 <div>
-                    <strong>${escapeHtml(file.name)}</strong>
+                    <strong class="gallery-name" data-ext="${escapeHtml(file.name.split('.').pop().toLowerCase())}">${escapeHtml(file.name)}</strong>
                     <div class="meta">${formatSize(file.size)}</div>
                 </div>
                 <div class="actions">
                     ${isPdf ? `<a href="${file.url}" target="_blank" class="secondary-btn" style="padding: 5px 10px; font-size: 0.8rem; margin-right: 5px;">Preview</a>` : ''}
                     <a href="${file.url}" download="${file.name}" class="secondary-btn" style="padding: 5px 10px; font-size: 0.8rem;">Download</a>
-                    <button class="hide-btn" data-type="file" data-name="${safeName}" onclick="app.handleHideClick(this, event)">hide</button>
+                    <button class="hide-btn" data-type="file" data-name="${safeName}" onclick="app.handleHideClick(this, event)">Hide</button>
                 </div>
             </li>
         `}).join('');
