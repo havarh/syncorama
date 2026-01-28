@@ -282,6 +282,10 @@ try {
                             $dimensions = ['width' => $imgData[0], 'height' => $imgData[1]];
                         }
                     } elseif ($ext === 'csv') {
+                        /**
+                         * Why did I add a feature to read the serial number of Autopilot CSV files?
+                         * Oh, well…    
+                         */
                         $content = file_get_contents($file);
 
                         // Handle UTF-16LE encoding often used in Windows-generated CSVs
