@@ -529,7 +529,7 @@ const app = {
     updateFilesUI(data) {
         const images = [];
         const others = [];
-        const imgExts = ['bmp', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'avif', 'svg'];
+        const imgExts = ['bmp', 'apng', 'cur', 'gif', 'ico', 'png', 'jpg', 'jpeg', 'webp', 'avif', 'svg'];
 
         data.files.forEach(file => {
             const ext = file.name.split('.').pop().toLowerCase();
