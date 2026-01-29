@@ -49,9 +49,48 @@ function jsonResponse($success, $message, $data = [])
 // Simple JSON file based user storage
 function getUsers()
 {
-    if (!file_exists(USERS_FILE))
+    if (!file_exists(USERS_FILE)) {
         return [];
-    return json_decode(file_get_contents(USERS_FILE), true);
+    }
+    $content = file_get_contents(USERS_FILE);
+    $users = json_decode($content, true);
+
+    if (!is_array($users)) {
+        return [];
+    }
+
+    // Data Migration: Convert old structure to multi-credential structure
+    $migrated = false;
+    foreach ($users as &$user) {
+        if (isset($user['credentialId']) && !isset($user['credentials'])) {
+            $user['credentials'] = [
+                [
+                    'credentialId' => $user['credentialId'],
+                    'credentialPublicKey' => $user['credentialPublicKey'],
+                    'credentialDescription' => 'Legacy Device'
+                ]
+            ];
+            unset($user['credentialId']);
+            unset($user['credentialPublicKey']);
+            $migrated = true;
+        }
+
+        // Add missing descriptions to existing multi-credentials
+        if (isset($user['credentials']) && is_array($user['credentials'])) {
+            foreach ($user['credentials'] as &$cre) {
+                if (!isset($cre['credentialDescription'])) {
+                    $cre['credentialDescription'] = 'Registered Device';
+                    $migrated = true;
+                }
+            }
+        }
+    }
+
+    if ($migrated) {
+        file_put_contents(USERS_FILE, json_encode($users, JSON_PRETTY_PRINT));
+    }
+
+    return $users;
 }
 
 function saveUser($user)
@@ -60,7 +99,22 @@ function saveUser($user)
         error_log("DEBUG: Saving user " . print_r($user, true));
     }
     $users = getUsers();
-    $users[] = $user;
+    $found = false;
+    foreach ($users as &$u) {
+        if ($u['id'] === $user['id']) {
+            // Append new credential to existing user
+            if (isset($user['credentials'][0])) {
+                $u['credentials'][] = $user['credentials'][0];
+            }
+            $found = true;
+            break;
+        }
+    }
+
+    if (!$found) {
+        $users[] = $user;
+    }
+
     file_put_contents(USERS_FILE, json_encode($users, JSON_PRETTY_PRINT));
 }
 
@@ -68,8 +122,9 @@ function findUserById($id)
 {
     $users = getUsers();
     foreach ($users as $u) {
-        if ($u['id'] === $id)
+        if ($u['id'] === $id) {
             return $u;
+        }
     }
     return null;
 }
@@ -115,16 +170,28 @@ try {
     if ($action === 'register_challenge') {
         // Only allow registration if logged in OR if no users exist (Bootstrap)
         $users = getUsers();
-        if (count($users) > 0 && empty($_SESSION['logged_in'])) {
+        $isLoggedIn = !empty($_SESSION['logged_in']);
+        if (count($users) > 0 && !$isLoggedIn) {
             jsonResponse(false, 'Unauthorized. Login to register new devices.');
         }
 
-        $userName = 'User ' . (count($users) + 1);
-        $userId = bin2hex(random_bytes(16));
+        if ($isLoggedIn && isset($_SESSION['user_id'])) {
+            // Find existing user if logged in
+            $currentUser = findUserById($_SESSION['user_id']);
+            if ($currentUser) {
+                $userId = $currentUser['id'];
+                $userName = $currentUser['name'];
+            } else {
+                // Fallback (shouldn't happen if session is valid)
+                $userName = 'User ' . (count($users) + 1);
+                $userId = bin2hex(random_bytes(16));
+            }
+        } else {
+            $userName = 'User ' . (count($users) + 1);
+            $userId = bin2hex(random_bytes(16));
+        }
 
         // Get create args (challenge)
-        // requireResidentKey: 'discouraged', userVerification: 'required'
-        // Arguments: $userId, $userName, $userDisplayName, $timeout, $requireResidentKey, $requireUserVerification
         $args = $webAuthn->getCreateArgs($userId, $userName, $userName, 20, 'discouraged', 'required');
 
         $_SESSION['challenge'] = $webAuthn->getChallenge();
@@ -137,6 +204,9 @@ try {
     if ($action === 'register_verify') {
         $clientDataJSON = base64_decode($input['clientDataJSON']);
         $attestationObject = base64_decode($input['attestationObject']);
+        $description = trim($input['description'] ?? '');
+        if (!$description)
+            $description = 'New Device';
         $challenge = $_SESSION['challenge'];
 
         try {
@@ -147,12 +217,18 @@ try {
             $user = [
                 'id' => $_SESSION['img_register_user_id'],
                 'name' => $_SESSION['img_register_user_name'],
-                'credentialId' => base64_encode($data->credentialId),
-                'credentialPublicKey' => base64_encode($data->credentialPublicKey)
+                'credentials' => [
+                    [
+                        'credentialId' => base64_encode($data->credentialId),
+                        'credentialPublicKey' => base64_encode($data->credentialPublicKey),
+                        'credentialDescription' => $description
+                    ]
+                ]
             ];
 
             saveUser($user);
             $_SESSION['logged_in'] = true;
+            $_SESSION['user_id'] = $user['id'];
 
             jsonResponse(true, 'Registration successful');
         } catch (WebAuthnException $e) {
@@ -162,15 +238,18 @@ try {
 
     if ($action === 'login_challenge') {
         $users = getUsers();
-        $credentialIds = array_map(function ($u) {
-            return base64_decode($u['credentialId']);
-        }, $users);
+        $credentialIds = [];
+        foreach ($users as $u) {
+            foreach ($u['credentials'] as $cre) {
+                $credentialIds[] = base64_decode($cre['credentialId']);
+            }
+        }
 
         if (empty($credentialIds)) {
             jsonResponse(false, 'No users registered');
         }
 
-        // getGetArgs args: $credentialIds, $timeout, $allowUsb, $allowNfc, $allowBle, $allowHybrid, $allowInternal, $requireUserVerification
+        // getGetArgs args: $credentialIds, $timeout, $allowUsb ...
         $args = $webAuthn->getGetArgs($credentialIds, 120, true, true, true, true, true, 'required');
         $_SESSION['challenge'] = $webAuthn->getChallenge();
 
@@ -188,12 +267,16 @@ try {
         // Find credential public key from our users
         $users = getUsers();
         $credentialPublicKey = null;
+        $foundUser = null;
         $credentialBinaryId = base64_decode($input['id']);
 
         foreach ($users as $u) {
-            if (base64_decode($u['credentialId']) === $credentialBinaryId) {
-                $credentialPublicKey = base64_decode($u['credentialPublicKey']);
-                break;
+            foreach ($u['credentials'] as $cre) {
+                if (base64_decode($cre['credentialId']) === $credentialBinaryId) {
+                    $credentialPublicKey = base64_decode($cre['credentialPublicKey']);
+                    $foundUser = $u;
+                    break 2;
+                }
             }
         }
 
@@ -204,6 +287,7 @@ try {
         try {
             $webAuthn->processGet($clientDataJSON, $authenticatorData, $signature, $credentialPublicKey, $challenge);
             $_SESSION['logged_in'] = true;
+            $_SESSION['user_id'] = $foundUser['id'];
             jsonResponse(true, 'Login successful');
         } catch (WebAuthnException $e) {
             jsonResponse(false, 'Login failed: ' . $e->getMessage());

@@ -32,6 +32,7 @@
             <header>
                 <div class="logo">Syncorama</div>
                 <div style="display: flex; gap: 10px;">
+                    <button id="add-device-btn" class="icon-btn" title="Add New Passkey Device">＋</button>
                     <button id="pause-btn" class="icon-btn">⏸</button>
                     <button id="logout-btn" class="icon-btn">Logout</button>
                 </div>

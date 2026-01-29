@@ -16,7 +16,8 @@ const app = {
         uploadProgress: document.getElementById('upload-progress'),
         clipboardList: document.getElementById('clipboard-list'),
         fileList: document.getElementById('file-list'),
-        imageGallery: document.getElementById('image-gallery')
+        imageGallery: document.getElementById('image-gallery'),
+        addDeviceBtn: document.getElementById('add-device-btn')
     },
 
     state: {
@@ -58,6 +59,7 @@ const app = {
         });
 
         this.els.logoutBtn.addEventListener('click', () => this.logout());
+        this.els.addDeviceBtn.addEventListener('click', () => this.webAuthnRegister());
         this.els.pauseBtn.addEventListener('click', () => this.togglePause()); // New Listener
         this.els.copyBtn.addEventListener('click', () => this.copyToDevice());
         this.els.pasteBtn.addEventListener('click', () => this.pushToServer());
@@ -217,7 +219,17 @@ const app = {
     // --- WebAuthn Logic ---
 
     async webAuthnRegister() {
-        this.setStatus('Generating challenge...');
+        const isDashboard = !this.els.dashboardScreen.classList.contains('hidden');
+        const setLocalStatus = (msg) => {
+            if (isDashboard) {
+                // If on dashboard, maybe use a temporary notification or just log
+                this.log(msg);
+            } else {
+                this.setStatus(msg);
+            }
+        };
+
+        setLocalStatus('Generating challenge...');
         const challengeRes = await this.request('register_challenge');
         if (!challengeRes.success) {
             alert(challengeRes.message);
@@ -238,35 +250,42 @@ const app = {
             }
             createOptions = responseData;
         } else {
-            // Fallback for flat structure (if any)
+            // Fallback for flat structure
             responseData.challenge = this.base64UrlDecode(responseData.challenge);
             responseData.user.id = this.base64UrlDecode(responseData.user.id);
             createOptions = { publicKey: responseData };
         }
 
-        this.setStatus('Waiting for authenticator...');
+        setLocalStatus('Waiting for authenticator...');
 
         try {
             const credential = await navigator.credentials.create(createOptions);
 
+            const description = prompt("Enter a name for this device (e.g., 'iPhone', 'Yubikey'):", "New Device") || "New Device";
+
             const clientDataJSON = this.arrayBufferToBase64(credential.response.clientDataJSON);
             const attestationObject = this.arrayBufferToBase64(credential.response.attestationObject);
 
-            this.setStatus('Verifying...');
+            setLocalStatus('Verifying...');
             const verifyRes = await this.request('register_verify', {
                 clientDataJSON,
-                attestationObject
+                attestationObject,
+                description
             });
 
             if (verifyRes.success) {
-                this.showDashboard();
+                if (isDashboard) {
+                    alert('New device added successfully!');
+                } else {
+                    this.showDashboard();
+                }
             } else {
                 alert('Registration failed: ' + verifyRes.message);
-                this.setStatus('Registration failed.');
+                setLocalStatus('Registration failed.');
             }
         } catch (e) {
             console.error(e);
-            this.setStatus('Registration cancelled or failed.');
+            setLocalStatus('Registration cancelled or failed.');
         }
     },
 
