@@ -15,7 +15,6 @@
 </head>
 
 <body>
-
     <div id="app">
         <!-- LOGIN SCREEN -->
         <div id="login-screen" class="screen">
@@ -60,7 +59,12 @@
                         <div class="upload-progress hidden" id="upload-progress">Uploading...</div>
                     </div>
                 </section>
-
+                <section class="card file-card large-files">
+                    <h2>Alternative file transfer</h2>
+                    <p>Tip: use <a href="https://gofile.io/">gofile.io</a> to upload large files, temporarly. You can
+                        also use <a href="https://web.localsend.org/">LocalSend</a> to share files with other devices if
+                        they're on the same network and don't have restrictions.</p>
+                </section>
                 <!-- History Lists -->
                 <div class="grid-cols">
                     <section class="card history-card">
